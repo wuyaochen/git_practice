@@ -5,10 +5,14 @@ import xml.etree.ElementTree as ET
 from albumentations.pytorch import ToTensorV2
 
 # 設定檔案路徑
-image_path = "image_path/mouse.jpg"
-xml_path = "xml_path/mouse.xml"
+image_path = "aug_test/images_path/quokka.jpg"
+xml_path = "aug_test/labels_path/quokka.xml"
 output_image_dir = "augmented_images"
 output_xml_dir = "augmented_labels"
+
+# 建立資料夾
+os.makedirs(output_image_dir, exist_ok=True)
+os.makedirs(output_xml_dir, exist_ok=True)
 
 # 自動偵測目前最大的 frame 編號
 existing_frames = [
@@ -21,11 +25,6 @@ if existing_frames:
     start_index = max_id + 1
 else:
     start_index = 1
-
-
-# 建立資料夾
-os.makedirs(output_image_dir, exist_ok=True)
-os.makedirs(output_xml_dir, exist_ok=True)
 
 # 讀取圖片
 image = cv2.imread(image_path)
@@ -40,6 +39,14 @@ root = tree.getroot()
 bboxes = []
 labels = []
 
+#防止框超出圖片範圍
+bbox_params = A.BboxParams(
+    format='pascal_voc',
+    label_fields=['category_ids'],
+    min_visibility=0.3
+)
+
+
 for obj in root.findall("object"):
     label = obj.find("name").text
     xml_box = obj.find("bndbox")
@@ -53,14 +60,14 @@ for obj in root.findall("object"):
 
 # 定義要套用的增強操作
 augmentations = [
-    A.Compose([A.HorizontalFlip(p=1)], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['category_ids'])),
-    A.Compose([A.VerticalFlip(p=1)], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['category_ids'])),
-    A.Compose([A.ShiftScaleRotate(p=1, shift_limit=0.0625, scale_limit=0.1, rotate_limit=15)], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['category_ids'])),
-    A.Compose([A.RandomBrightnessContrast(p=1)], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['category_ids'])),
-    A.Compose([A.Blur(blur_limit=3, p=1)], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['category_ids'])),
-    A.Compose([A.GaussNoise(var_limit=(10.0, 50.0), p=1)], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['category_ids'])),
-    A.Compose([A.RGBShift(r_shift_limit=15, g_shift_limit=15, b_shift_limit=15, p=1)], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['category_ids'])),
-    A.Compose([A.HueSaturationValue(hue_shift_limit=20, sat_shift_limit=30, val_shift_limit=20, p=1)], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['category_ids'])),
+    A.Compose([A.HorizontalFlip(p=1)], bbox_params=bbox_params),
+    A.Compose([A.VerticalFlip(p=1)], bbox_params=bbox_params),
+    A.Compose([A.ShiftScaleRotate(p=1, shift_limit=0.0625, scale_limit=0.1, rotate_limit=15)], bbox_params=bbox_params),
+    A.Compose([A.RandomBrightnessContrast(p=1)], bbox_params=bbox_params),
+    A.Compose([A.Blur(blur_limit=3, p=1)], bbox_params=bbox_params),
+    A.Compose([A.GaussNoise(var_limit=(10.0, 50.0), p=1)], bbox_params=bbox_params),
+    A.Compose([A.RGBShift(r_shift_limit=15, g_shift_limit=15, b_shift_limit=15, p=1)], bbox_params=bbox_params),
+    A.Compose([A.HueSaturationValue(hue_shift_limit=20, sat_shift_limit=30, val_shift_limit=20, p=1)], bbox_params=bbox_params),
 ]
 
 # 原圖也輸出
@@ -75,8 +82,14 @@ for aug in augmentations:
     all_bboxes.append(transformed['bboxes'])
     all_labels.append(transformed['category_ids'])
 
+
+
 # 輸出編號
 for i, (img, boxes, lbls) in enumerate(zip(all_images, all_bboxes, all_labels)):
+    # 輸出編號
+    if not boxes:
+        continue  # 若增強後沒有留下 bbox，就跳過這張圖
+
     frame_id = start_index + i
     filename = f"frame{frame_id}.jpg"
     xmlname = f"frame{frame_id}.xml"
@@ -93,7 +106,8 @@ for i, (img, boxes, lbls) in enumerate(zip(all_images, all_bboxes, all_labels)):
     ET.SubElement(size, "width").text = str(width)
     ET.SubElement(size, "height").text = str(height)
     ET.SubElement(size, "depth").text = "3"
-
+    ET.SubElement(annotation, "segmented").text = "0"
+    
     for box, label in zip(boxes, lbls):
         obj = ET.SubElement(annotation, "object")
         ET.SubElement(obj, "name").text = label
