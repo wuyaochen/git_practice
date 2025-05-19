@@ -37,9 +37,9 @@ def split_photos(images, train, test, val, ratio=(8, 1, 1)):
     print(f"Total photos: {total_photos}, Train: {num_b}, Test: {num_c}, Val: {num_d}")
 
 # 使用範例
-images = r'D:\wyc\images3'  # A 資料夾的路徑
-train = r'D:\wyc\dataset3\train'  # B 資料夾的路徑
-test = r'D:\wyc\dataset3\test'  # C 資料夾的路徑
-val = r'D:\wyc\dataset3\val'  # D 資料夾的路徑
+images = r'C:\Users\User\wyc\cut_datasets0411_aug\augmented_images'  # A 資料夾的路徑
+train = r'C:\Users\User\wyc\cut_datasets0411_aug\Images\train'  # B 資料夾的路徑
+test = r'C:\Users\User\wyc\cut_datasets0411_aug\Images\test'  # C 資料夾的路徑
+val = r'C:\Users\User\wyc\cut_datasets0411_aug\Images\val'  # D 資料夾的路徑
 
 split_photos(images, train, test, val)

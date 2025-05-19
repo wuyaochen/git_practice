@@ -28,13 +28,13 @@ def match_and_copy(source_E, target_B, target_C, target_D, dest_F, dest_G, dest_
             shutil.copy(src_file, os.path.join(dest_H, f))
 
 # 使用範例
-source_E = r'C:\Users\DESIGN\wyc\augmented_labels'       # E 的路徑（如 XML 標註檔）
-target_B = r'C:\Users\DESIGN\wyc\aug_test\images\train'      # B
-target_C = r'C:\Users\DESIGN\wyc\aug_test\images\test'       # C
-target_D = r'C:\Users\DESIGN\wyc\aug_test\images\val'        # D
+source_E = r'C:\Users\User\wyc\cut_datasets0411_aug\augmented_labels'       # E 的路徑（如 XML 標註檔）
+target_B = r'C:\Users\User\wyc\cut_datasets0411_aug\Images\train'      # B
+target_C = r'C:\Users\User\wyc\cut_datasets0411_aug\Images\test'       # C
+target_D = r'C:\Users\User\wyc\cut_datasets0411_aug\Images\val'        # D
 
-dest_F = r'C:\Users\DESIGN\wyc\aug_test\labels\train' # F
-dest_G = r'C:\Users\DESIGN\wyc\aug_test\labels\test'  # G
-dest_H = r'C:\Users\DESIGN\wyc\aug_test\labels\val'   # H
+dest_F = r'C:\Users\User\wyc\cut_datasets0411_aug\labels\train' # F
+dest_G = r'C:\Users\User\wyc\cut_datasets0411_aug\labels\test'  # G
+dest_H = r'C:\Users\User\wyc\cut_datasets0411_aug\labels\val'   # H
 
 match_and_copy(source_E, target_B, target_C, target_D, dest_F, dest_G, dest_H, ext=".xml")

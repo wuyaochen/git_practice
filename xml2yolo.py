@@ -23,20 +23,17 @@ def convert_coordinates(size, box):
     return (x,y,w,h)
 
 
-def convert_xml2yolo( lut, input_file, output_file):
-    if not os.path.exits(output_file):
-        os.chdir(r'C:\Users\DESIGN\wyc\xml2yolo')
-        os.mkdir(output_file)
+def convert_xml2yolo(lut, input_dir, output_dir):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     xml_files = glob.glob(os.path.join(input_dir, "*.xml"))
     if not xml_files:
         print(f"警告：輸入資料夾 {input_dir} 中沒有找到任何 XML 文件")
         return
         
-    for fname in glob.glob("*.xml"):
-        
+    for fname in xml_files:
         xmldoc = minidom.parse(fname)
-        
         fname_base = os.path.basename(fname)[:-4]  # 移除 .xml
         fname_out = os.path.join(output_dir, fname_base + '.txt')
 
@@ -73,9 +70,9 @@ def convert_xml2yolo( lut, input_file, output_file):
 
 
 def main():
-    input_dir = r"C:\Users\DESIGN\wyc\augmented_labels"  # 替換為你的 XML 文件資料夾路徑
-    output_dir = r"C:\Users\DESIGN\wyc\xml2yolo"  # 替換為你的 txt 文件儲存路徑
-    convert_xml2yolo( lut )
+    input_dir = r"C:\Users\User\wyc\cut_datasets0411_aug\xml_labels\val"  # 替換為你的 XML 文件資料夾路徑
+    output_dir = r"C:\Users\User\wyc\cut_datasets0411_aug\labels\val"  # 替換為你的 txt 文件儲存路徑
+    convert_xml2yolo(lut, input_dir, output_dir)
     print(f"轉換完成！所有 YOLO 格式文件已儲存至：{output_dir}")
 
 if __name__ == '__main__':
