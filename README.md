@@ -57,7 +57,7 @@ pip install opencv-python albumentations pillow moviepy
 ```bash
 python dataset.py
 ```
-- **輸入**：影片文件（如 `monkey.mp4`）
+- **輸入**：影片文件（需在腳本中配置影片路徑）
 - **輸出**：JPEGImage 資料夾中的圖像幀
 
 ### 步驟 2：裁剪圖像
@@ -188,10 +188,11 @@ python label_move.py
 將 Pascal VOC 格式的 XML 標注轉換為 YOLO 格式。
 
 **配置**：
-- `lut`：類別名稱到類別 ID 的映射字典
+- `lut`：類別名稱到類別 ID 的映射字典（NG = 不良品/缺陷）
   ```python
   lut = {
-      "NG": 0,
+      "NG": 0,        # 不良品/缺陷
+      "OK": 1,        # 良品（如需要）
       # 添加更多類別...
   }
   ```
