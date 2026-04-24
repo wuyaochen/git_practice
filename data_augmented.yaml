@@ -1,0 +1,7 @@
+path: C:/Users/User/wyc/yolov11/output_train_cut/datasets
+train: images/aug_train          # 擴增後訓練集 (4064 張 = 1016 原始 + 3048 擴增)
+val: images/val                  # 驗證集 (266 張)
+test: images/test                # 測試集 (265 張)
+
+nc: 1
+names: ['NG']
