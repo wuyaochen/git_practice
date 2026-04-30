@@ -1,0 +1,45 @@
+# Exp_C Test Evaluation Configuration
+# 用於評估 Exp_C 模型在 test 集上的表現
+
+model:
+  path: runs/detect/runs/pretrained_study/Exp_C_freeze23_BackboneNeckFrozen/weights/best.pt
+  experiment_name: "Exp_C_freeze23_BackboneNeckFrozen"
+  freeze_layers: 23
+  description: "Frozen Backbone + Neck (Layer 0-22), Training Head only"
+
+dataset:
+  config: data_augmented.yaml
+  split: test  # test 或 val
+  test_size: 265
+  batch_size: 16
+  imgsz: 640
+
+inference:
+  conf_threshold: 0.25
+  iou_threshold: 0.45
+  device: cuda  # cuda 或 cpu
+
+output:
+  base_dir: runs/detect/runs/pretrained_study_eval
+  exp_subdir: Exp_C_freeze23_test
+  save_report: true
+  save_confusion_matrix: true
+  save_metrics_json: true
+  save_comparison: true  # 與訓練期間的 val 對比
+
+visualization:
+  plot_confusion_matrix: true
+  plot_precision_recall: true
+  dpi: 150
+
+# Train 期間的 val 指標（用於對比）
+# 備註：以下採用 Exp_C 在 val 上 mAP50(B) 最高的那個 epoch（best by mAP50）。
+train_val_metrics:
+  epochs: 93
+  best_epoch_by_map50: 43
+  precision: 0.8325
+  recall: 0.75771
+  mAP50: 0.83693
+  mAP50_95: 0.42715
+  val_box_loss: 0.88868
+  val_cls_loss: 0.94671
