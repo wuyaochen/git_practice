@@ -36,8 +36,6 @@ def verify_environment():
         'yaml': 'PyYAML',
         'numpy': 'NumPy',
         'matplotlib': 'Matplotlib',
-        'seaborn': 'Seaborn',
-        'sklearn': 'Scikit-learn',
         'ultralytics': 'Ultralytics YOLO',
         'torch': 'PyTorch',
         'torchvision': 'TorchVision',
@@ -86,7 +84,7 @@ def verify_environment():
         print("❌ Some checks failed. Please fix the issues above.")
         if not all_packages_ok:
             print("\n  Install missing packages with:")
-            print("    pip install pyyaml numpy matplotlib seaborn scikit-learn")
+            print("    pip install pyyaml numpy matplotlib ultralytics torch torchvision opencv-python")
         return False
 
 if __name__ == '__main__':

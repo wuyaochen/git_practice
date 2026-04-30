@@ -12,8 +12,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from matplotlib.ticker import MaxNLocator
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -205,18 +204,48 @@ def generate_confusion_matrix(results, config, output_dir):
             labels = [f"label_{i}" for i in range(cm.shape[0])]
 
         figure, ax = plt.subplots(figsize=(10, 8))
-        sns.heatmap(cm, annot=True, fmt='.0f', cmap='Blues', ax=ax, cbar_kws={'label': 'Count'})
-        ax.set_title(f"Confusion Matrix - {config['model']['experiment_name']}", fontsize=14, fontweight='bold')
+
+        im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+        cbar = figure.colorbar(im, ax=ax)
+        cbar.set_label('Count')
+
+        ax.set_title(
+            f"Confusion Matrix - {config['model']['experiment_name']}",
+            fontsize=14,
+            fontweight='bold',
+        )
         ax.set_ylabel('True Label', fontsize=12)
         ax.set_xlabel('Predicted Label', fontsize=12)
+
+        tick_marks = np.arange(len(labels))
+        ax.set_xticks(tick_marks)
+        ax.set_yticks(tick_marks)
         ax.set_xticklabels(labels, rotation=45, ha='right')
         ax.set_yticklabels(labels, rotation=0)
 
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        # 在格子中寫數字
+        threshold = cm.max() / 2.0 if cm.size else 0
+        for i in range(cm.shape[0]):
+            for j in range(cm.shape[1]):
+                val = cm[i, j]
+                ax.text(
+                    j,
+                    i,
+                    f"{int(val)}",
+                    ha='center',
+                    va='center',
+                    color='white' if val > threshold else 'black',
+                    fontsize=10,
+                )
+
+        figure.tight_layout()
         cm_path = output_dir / 'confusion_matrix.png'
-        plt.tight_layout()
-        plt.savefig(cm_path, dpi=config['visualization']['dpi'])
+        figure.savefig(cm_path, dpi=config['visualization']['dpi'])
         logger.info(f"  ✓ Saved to {cm_path}")
-        plt.close()
+        plt.close(figure)
             
     except Exception as e:
         logger.warning(f"  Could not generate confusion matrix: {e}")
