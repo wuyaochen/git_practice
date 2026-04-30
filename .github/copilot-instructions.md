@@ -10,6 +10,31 @@
 
 詳見 [README.md](../README.md)
 
+## 最新成果（已完成）
+
+### 預訓練權重凍結實驗（Freeze Study）
+
+已完成 YOLOv11m 凍結層數對訓練效果的三組對照實驗（模型總層數 24；Backbone 0–9、Neck 10–22、Head 23）：
+
+| Experiment | freeze | 說明 | epochs | mAP50 | mAP50-95 |
+|---|---:|---|---:|---:|---:|
+| Exp_A_freeze0_FullFT | 0 | 全部微調 | 109 | 0.8258 | (見 results.csv) |
+| Exp_B_freeze10_BackboneFrozen | 10 | 凍結 Backbone（0–9） | 75 | **0.8512** | 0.4998 |
+| Exp_C_freeze23_BackboneNeckFrozen | 23 | 凍結 Backbone+Neck（0–22） | 93 | 0.8171 | (見 results.csv) |
+
+最佳模型（Exp_B）權重：
+`runs/detect/runs/pretrained_study/Exp_B_freeze10_BackboneFrozen/weights/best.pt`
+
+### Test 集最終評估腳本
+
+已建立可在 test 集做最終評估與輸出報告的腳本：
+- 主程式：`eval_test.py`
+- 配置檔：`eval_configs/exp_b_test.yaml`
+- 輸出位置（預設）：`runs/detect/runs/pretrained_study_eval/Exp_B_freeze10_test/`
+  - `evaluation_report.txt`
+  - `metrics.json`
+  - `confusion_matrix.png`（若 ultralytics 版本在 val 回傳含 confusion_matrix；否則會提示）
+
 ## 環境與安裝
 
 **Python 版本**：3.10–3.11
@@ -78,6 +103,20 @@ runs/custom_train/             ← 自定義模型訓練輸出
 
 runs/custom_train/eval_*/      ← Test/Val 驗證輸出
   metrics.json                 ← 評估指標
+
+# yolov11_new 內部（本資料夾）主要產物
+output_train_cut/
+  datasets/                    ← 目前訓練/驗證/測試主要資料集
+    images/{aug_train|train|val|test}/
+    labels/{aug_train|train|val|test}/
+
+runs/detect/runs/pretrained_study/
+  Exp_A_freeze0_FullFT/
+  Exp_B_freeze10_BackboneFrozen/
+  Exp_C_freeze23_BackboneNeckFrozen/
+
+runs/detect/runs/pretrained_study_eval/
+  Exp_B_freeze10_test/         ← eval_test.py 輸出
 ```
 
 ## 關鍵腳本與工作流
@@ -184,6 +223,7 @@ python scripts/preprocess.py \
 **研究目標**：比較 `freeze` 層數對模型訓練的影響
 - **Exp A**：`freeze=0`（完整微調）— 所有層參與訓練
 - **Exp B**：`freeze=10`（凍結 Backbone）— 只訓練頭部層
+- **Exp C**：`freeze=23`（凍結 Backbone+Neck）— 只訓練 Head
 
 **執行方式**：
 
@@ -207,6 +247,7 @@ uv run --python .venv\Scripts\python.exe train.py
 **變異參數** — 研究凍結層對訓練的影響：
 - `freeze=0`：完整微調（Exp A）
 - `freeze=10`：凍結 Backbone 層 0~9（Exp B）
+- `freeze=23`：凍結 Backbone+Neck 層 0~22（Exp C）
 
 **資料集配置** [**data_augmented.yaml**](../data_augmented.yaml)：
 
@@ -237,22 +278,16 @@ runs/pretrained_study/
 - 檢視 `results.csv` 中的 mAP、precision、recall 等指標
 - 分析 freeze 層數對收斂速度和最終性能的影響
 
-### 3. 驗證 Test 與 Val 集
-[**scripts/eval.py**](../scripts/eval.py)
+### 3. 最終評估（Test 集）
+[**eval_test.py**](../eval_test.py)
+
+以 Exp_B 最佳權重對 test 集做一次性最終評估（避免把 val 當成 final 指標），並輸出可直接寫入論文的對比報告。
 
 ```bash
-# 評估 test 集
-python scripts/eval.py \
-  --weights runs/custom_train/weights/best.pt \
-  --source data260420/test \
-  --device cuda --out runs/custom_train/eval_test
-
-# 評估 val 集
-python scripts/eval.py \
-  --weights runs/custom_train/weights/best.pt \
-  --source data260420/val \
-  --device cuda --out runs/custom_train/eval_val
+python eval_test.py --config eval_configs/exp_b_test.yaml --device cuda
 ```
+
+注意：`data_augmented.yaml` 的 `path:` 為絕對路徑，跨機器執行前請先更新成測試伺服器上的資料集位置。
 
 ## 程式碼風格與慣例
 

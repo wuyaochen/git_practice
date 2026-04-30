@@ -91,11 +91,20 @@ def main():
             freeze=10
         )
         
+        # 實驗 C: 凍結 Backbone + Neck (freeze=23)
+        logger.info("\n【實驗 C】凍結 Backbone + Neck (freeze=23)")
+        logger.info("說明: Layer 0~22 為 Backbone + Neck，凍結後只訓練 Head 層 (Layer 23)")
+        results_C = run_experiment(
+            exp_name="Exp_C_freeze23_BackboneNeckFrozen",
+            freeze=23
+        )
+        
         logger.info("\n" + "="*60)
         logger.info("✓ 所有實驗完成！")
-        logger.info("比較這兩個實驗的結果，分析 freeze 層數對訓練的影響:")
+        logger.info("比較這三個實驗的結果，分析 freeze 層數對訓練的影響:")
         logger.info("  - 檢視 runs/pretrained_study/Exp_A_freeze0_FullFT/results.csv")
         logger.info("  - 檢視 runs/pretrained_study/Exp_B_freeze10_BackboneFrozen/results.csv")
+        logger.info("  - 檢視 runs/pretrained_study/Exp_C_freeze23_BackboneNeckFrozen/results.csv")
         logger.info("="*60 + "\n")
         
     except Exception as e:

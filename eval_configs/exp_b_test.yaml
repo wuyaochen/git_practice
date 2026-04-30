@@ -1,0 +1,43 @@
+# Exp_B Test Evaluation Configuration
+# 用於評估 Exp_B 模型在 test 集上的表現
+
+model:
+  path: runs/detect/runs/pretrained_study/Exp_B_freeze10_BackboneFrozen/weights/best.pt
+  experiment_name: "Exp_B_freeze10_BackboneFrozen"
+  freeze_layers: 10
+  description: "Frozen Backbone (Layer 0-9), Training Head + Neck"
+
+dataset:
+  config: data_augmented.yaml
+  split: test  # test 或 val
+  test_size: 265
+  batch_size: 16
+  imgsz: 640
+
+inference:
+  conf_threshold: 0.25
+  iou_threshold: 0.45
+  device: cuda  # cuda 或 cpu
+
+output:
+  base_dir: runs/detect/runs/pretrained_study_eval
+  exp_subdir: Exp_B_freeze10_test
+  save_report: true
+  save_confusion_matrix: true
+  save_metrics_json: true
+  save_comparison: true  # 與訓練期間的 val 對比
+
+visualization:
+  plot_confusion_matrix: true
+  plot_precision_recall: true
+  dpi: 150
+
+# Train 期間的 val 指標（用於對比）
+train_val_metrics:
+  epochs: 75
+  precision: 0.8175
+  recall: 0.8392
+  mAP50: 0.8512
+  mAP50_95: 0.4998
+  val_box_loss: 0.7764
+  val_cls_loss: 0.4306
